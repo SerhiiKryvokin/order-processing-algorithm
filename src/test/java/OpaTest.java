@@ -1,5 +1,6 @@
 import base.opa.IndexPqLinkedHashSetOPA;
 import base.opa.OrderProcessorAlgorithm;
+import base.opa.OrderProcessorAlgorithm.PriceSizeQueryResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,7 +54,7 @@ public class OpaTest {
         opa.processOrder(orderId++, CODE_SIDE_SELLER, 99, 30);
         opa.processOrder(orderId++, CODE_SIDE_SELLER, 98, 30);
         assertEquals(30, opa.querySize(98));
-        OrderProcessorAlgorithm.PriceSizeQueryResponse resp = opa.querySellers();
+        PriceSizeQueryResponse resp = opa.querySellers();
         assertEquals(98, resp.price);
         assertEquals(30, resp.size);
         assertTrue(opa.cancelOrder(orderId - 1));
@@ -79,6 +80,53 @@ public class OpaTest {
         assertEquals(5, resp.size);
 
         resp = opa.queryBuyers();
+        assertNull(resp);
+    }
+    
+    @Test
+    public void totalSizeZeroOnStart() {
+        assertEquals(0, opa.querySize(100));
+    }
+    
+    @Test
+    public void nullResponseOnStart() {
+        PriceSizeQueryResponse resp = opa.querySellers();
+        assertNull(resp);
+        resp = opa.queryBuyers();
+        assertNull(resp);
+    }
+    
+    @Test
+    public void bigBuyOrderTakesSeveralSmallSellOrders() {
+        int orderId = 0;
+        opa.processOrder(orderId++, CODE_SIDE_SELLER, 100, 30);
+        opa.processOrder(orderId++, CODE_SIDE_SELLER, 100, 40);
+        opa.processOrder(orderId++, CODE_SIDE_SELLER, 100, 50);
+        PriceSizeQueryResponse resp = opa.querySellers();
+        assertEquals(100, resp.price);
+        assertEquals(120, resp.size);
+        opa.processOrder(orderId++, CODE_SIDE_BUYER, 101, 75);
+        resp = opa.querySellers();
+        assertEquals(100, resp.price);
+        assertEquals(45, resp.size);
+        resp = opa.queryBuyers();
+        assertNull(resp);
+    }
+    
+    @Test
+    public void bigSellOrderTakesSeveralBuyOrders() {
+        int orderId = 0;
+        opa.processOrder(orderId++, CODE_SIDE_BUYER, 100, 30);
+        opa.processOrder(orderId++, CODE_SIDE_BUYER, 100, 40);
+        opa.processOrder(orderId++, CODE_SIDE_BUYER, 100, 50);
+        PriceSizeQueryResponse resp = opa.queryBuyers();
+        assertEquals(100, resp.price);
+        assertEquals(120, resp.size);
+        opa.processOrder(orderId++, CODE_SIDE_SELLER, 99, 75);
+        resp = opa.queryBuyers();
+        assertEquals(100, resp.price);
+        assertEquals(45, resp.size);
+        resp = opa.querySellers();
         assertNull(resp);
     }
 }
