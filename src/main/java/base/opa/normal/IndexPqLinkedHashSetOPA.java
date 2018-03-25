@@ -1,11 +1,13 @@
-package base.opa;
+package base.opa.normal;
 
 import base.indexpq.IndexMaxPQ;
 import base.indexpq.IndexMinPQ;
+import base.opa.PriceSizeQueryResponse;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static base.Constants.*;
 
@@ -102,23 +104,7 @@ public class IndexPqLinkedHashSetOPA implements OrderProcessorAlgorithm {
     private void processOrderSeller(int orderId, int price, int size) {
         while (!buyPrices.isEmpty() && buyPrices.minKey() >= price && size > 0) {
             int maxBuyPrice = buyPrices.minKey();
-            Iterator<Integer> it = buyOrdersAtPrice.get(maxBuyPrice).iterator();
-            while (it.hasNext() && size > 0) {
-                int order = it.next();
-                int remainingSize = remainingOrderSize[order];
-                if (remainingSize >= size) {
-                    remainingOrderSize[order] -= size;
-                    totalSizeAtPrice[maxBuyPrice] -= size;
-                    size = 0;
-                } else {
-                    totalSizeAtPrice[maxBuyPrice] -= remainingSize;
-                    size -= remainingSize;
-                    remainingOrderSize[order] = 0;
-                }
-                if (remainingOrderSize[order] == 0) {
-                    it.remove();
-                }
-            }
+            size = processOrders(buyOrdersAtPrice.get(maxBuyPrice), maxBuyPrice, size);
             if (buyOrdersAtPrice.get(maxBuyPrice).isEmpty()) {
                 buyPrices.delMin();
             }
@@ -140,23 +126,7 @@ public class IndexPqLinkedHashSetOPA implements OrderProcessorAlgorithm {
     private void processOrderBuyer(int orderId, int price, int size) {
         while (!sellPrices.isEmpty() && sellPrices.minKey() <= price && size > 0) {
             int minSellPrice = sellPrices.minKey();
-            Iterator<Integer> it = sellOrdersAtPrice.get(minSellPrice).iterator();
-            while (it.hasNext() && size > 0) {
-                int order = it.next();
-                int remainingSize = remainingOrderSize[order];
-                if (remainingSize >= size) {
-                    remainingOrderSize[order] -= size;
-                    totalSizeAtPrice[minSellPrice] -= size;
-                    size = 0;
-                } else {
-                    totalSizeAtPrice[minSellPrice] -= remainingSize;
-                    size -= remainingSize;
-                    remainingOrderSize[order] = 0;
-                }
-                if (remainingOrderSize[order] == 0) {
-                    it.remove();
-                }
-            }
+            size = processOrders(sellOrdersAtPrice.get(minSellPrice), minSellPrice, size);
             if (sellOrdersAtPrice.get(minSellPrice).isEmpty()) {
                 sellPrices.delMin();
             }
@@ -164,6 +134,27 @@ public class IndexPqLinkedHashSetOPA implements OrderProcessorAlgorithm {
         if (size > 0) {
             addBuyOrder(orderId, price, size);
         }
+    }
+    
+    private int processOrders(Set<Integer> orders, int price, int size) {
+        Iterator<Integer> it = orders.iterator();
+        while (it.hasNext() && size > 0) {
+            int order = it.next();
+            int remainingSize = remainingOrderSize[order];
+            if (remainingSize >= size) {
+                remainingOrderSize[order] -= size;
+                totalSizeAtPrice[price] -= size;
+                size = 0;
+            } else {
+                totalSizeAtPrice[price] -= remainingSize;
+                size -= remainingSize;
+                remainingOrderSize[order] = 0;
+            }
+            if (remainingOrderSize[order] == 0) {
+                it.remove();
+            }
+        }
+        return size;
     }
 
     private void addBuyOrder(int orderId, int price, int size) {

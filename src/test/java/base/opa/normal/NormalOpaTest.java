@@ -1,6 +1,6 @@
-import base.opa.IndexPqLinkedHashSetOPA;
-import base.opa.OrderProcessorAlgorithm;
-import base.opa.OrderProcessorAlgorithm.PriceSizeQueryResponse;
+package base.opa.normal;
+
+import base.opa.PriceSizeQueryResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -8,9 +8,9 @@ import static base.Constants.CODE_SIDE_BUYER;
 import static base.Constants.CODE_SIDE_SELLER;
 import static org.junit.Assert.*;
 
-public class OpaTest {
+public class NormalOpaTest {
 
-    OrderProcessorAlgorithm opa;
+    private OrderProcessorAlgorithm opa;
 
     @Before
     public void init() {

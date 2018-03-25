@@ -1,4 +1,6 @@
-package base.opa;
+package base.opa.normal;
+
+import base.opa.PriceSizeQueryResponse;
 
 public interface OrderProcessorAlgorithm {
     void processOrder(int orderId, char side, int price, int size);
@@ -10,14 +12,5 @@ public interface OrderProcessorAlgorithm {
     PriceSizeQueryResponse querySellers();
 
     int querySize(int price);
-
-    class PriceSizeQueryResponse {
-        public int price;
-        public int size;
-
-        public PriceSizeQueryResponse(int price, int size) {
-            this.price = price;
-            this.size = size;
-        }
-    }
+    
 }
