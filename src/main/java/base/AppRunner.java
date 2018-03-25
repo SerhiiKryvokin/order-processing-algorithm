@@ -13,13 +13,9 @@ public class AppRunner {
 //    private IOProcessor ioProcessor = new NormalIOProcessor();
 
     private void run() {
-        try {
+        try (PrintWriter out = new PrintWriter(new File(Constants.OUTPUT_FILE_NAME))) {
             Scanner in = new Scanner(new File(Constants.INPUT_FILE_NAME));
-            PrintWriter out = new PrintWriter(new File(Constants.OUTPUT_FILE_NAME));
-
             ioProcessor.processInput(in, out);
-
-            out.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
