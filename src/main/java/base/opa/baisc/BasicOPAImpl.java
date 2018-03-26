@@ -143,7 +143,7 @@ public class BasicOPAImpl implements BasicOPA {
             int minAskPrice = it.next();
             size = reduceSize(minAskPrice, size);
             if (size != 0 || sizeAtPrice.get(minAskPrice) == 0) {
-                askPrices.remove(minAskPrice);
+                it.remove();
             }
         }
     }
