@@ -37,14 +37,14 @@ public class BasicIOProcessor implements IOProcessor {
                     if (bestBid == null) {
                         out.println("empty");
                     } else {
-                        out.println(bestBid.price + " " + bestBid.size);
+                        out.println(bestBid.price + "," + bestBid.size);
                     }
                 } else if (type.equals(QUERY_BEST_ASK)) {
                     PriceSizeQueryResponse bestAsk = opa.getBestAsk();
                     if (bestAsk == null) {
                         out.println("empty");
                     } else {
-                        out.println(bestAsk.price + " " + bestAsk.size);
+                        out.println(bestAsk.price + "," + bestAsk.size);
                     }
                 }
             }
