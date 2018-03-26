@@ -10,7 +10,7 @@ import static base.opa.baisc.BasicOPA.OrderType.buy;
 import static base.opa.baisc.BasicOPA.OrderType.sell;
 
 public class BasicOPAImpl implements BasicOPA {
-    
+
     private HashMap<Integer, Integer> sizeAtPrice = new HashMap<>();
 
     private TreeSet<Integer> bidPrices = new TreeSet<>(Comparator.reverseOrder());
@@ -68,8 +68,11 @@ public class BasicOPAImpl implements BasicOPA {
 
     private void updateBid(int price, int size) {
         if (size == 0) {
-            bidPrices.remove(price);
-            sizeAtPrice.put(price, size);
+            if (bidPrices.remove(price)) {
+                sizeAtPrice.put(price, size);
+            } else {
+                throw new IllegalArgumentException("There is no bid at price " + price + " and specified size is 0");
+            }
             return;
         }
 
@@ -94,8 +97,11 @@ public class BasicOPAImpl implements BasicOPA {
 
     private void updateAsk(int price, int size) {
         if (size == 0) {
-            askPrices.remove(price);
-            sizeAtPrice.put(price, size);
+            if (askPrices.remove(price)) {
+                sizeAtPrice.put(price, size);
+            } else {
+                throw new IllegalArgumentException("There is no ask at price " + price + " and specified size is 0");
+            }
             return;
         }
 
